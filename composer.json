@@ -1,0 +1,36 @@
+{
+    "name": "jhoffland/natec-php-sdk",
+    "description": "Natec Klantportaal API Client Library for PHP",
+    "type": "library",
+    "license": "MIT",
+    "homepage": "https://github.com/jhoffland/natec-php-sdk",
+    "autoload": {
+        "psr-4": {
+            "NatecSdk\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Joep Hoffland",
+            "email": "joephoffland@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.1"
+    },
+    "suggest": {
+        "jhoffland/guzzle-formatter": "*"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^1.9",
+        "squizlabs/php_codesniffer": "^3.7",
+        "phpunit/phpunit": "^9.5"
+    },
+    "scripts": {
+        "run-tests":[
+            "vendor/bin/phpcs",
+            "vendor/bin/phpstan",
+            "vendor/bin/phpunit"
+        ]
+    }
+}
