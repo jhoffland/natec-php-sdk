@@ -9,6 +9,11 @@
             "NatecSdk\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "NatecSdk\\Tests\\": "tests/"
+        }
+    },
     "authors": [
         {
             "name": "Joep Hoffland",
@@ -16,7 +21,8 @@
         }
     ],
     "require": {
-        "php": ">=8.1"
+        "php": ">=8.1",
+        "guzzlehttp/guzzle": "^7.5"
     },
     "suggest": {
         "jhoffland/guzzle-formatter": "*"
@@ -24,7 +30,8 @@
     "require-dev": {
         "phpstan/phpstan": "^1.9",
         "squizlabs/php_codesniffer": "^3.7",
-        "phpunit/phpunit": "^9.5"
+        "phpunit/phpunit": "^9.5",
+        "slevomat/coding-standard": "^8.6"
     },
     "scripts": {
         "run-tests":[
@@ -32,5 +39,10 @@
             "vendor/bin/phpstan",
             "vendor/bin/phpunit"
         ]
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": false
+        }
     }
 }

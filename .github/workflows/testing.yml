@@ -19,6 +19,7 @@ jobs:
           tools: composer:v2
       - name: Composer install
         run: composer install --prefer-install=dist --no-interaction --no-progress
+
       - name: Sniff code
         run: vendor/bin/phpcs --no-cache
 
@@ -36,6 +37,7 @@ jobs:
           tools: composer:v2
       - name: Composer install
         run: composer install --prefer-install=dist --no-interaction --no-progress
+
       - name: Analyse code
         run: vendor/bin/phpstan
 
@@ -62,11 +64,18 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.versions.php }}
-          coverage: none
+          coverage: xdebug3
           tools: composer:v2
       - name: Check PHP version
         run: php -v
       - name: Composer install
         run: composer install --prefer-install=dist --no-interaction --no-progress
+
       - name: Run tests
-        run: vendor/bin/phpunit
+        run: vendor/bin/phpunit --coverage-clover=coverage-clover.xml
+
+      - name: Send code coverage report to Codecov.io
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage-clover.xml

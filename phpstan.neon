@@ -1,5 +1,19 @@
 parameters:
-	level: 9
-	paths:
-		- src
-		- tests
+    level: 9
+    paths:
+        - src
+        - tests
+    earlyTerminatingMethodCalls:
+        NatecSdk\Client:
+            - parseException
+    ignoreErrors:
+        -
+            message: '#Call to an undefined static method NatecSdk\\Resources\\Resource::endpoint\(\)#'
+            path: src/Querying/ResultSet.php
+            count: 1
+            reportUnmatched: true
+        -
+            message: '#Unsafe usage of new static\(\)#'
+            path: src/Querying/Findable.php
+            count: 1
+            reportUnmatched: true
