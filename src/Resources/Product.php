@@ -2,7 +2,6 @@
 
 namespace NatecSdk\Resources;
 
-use NatecSdk\Exceptions\NatecSdkException;
 use NatecSdk\Querying\Queryable;
 
 class Product extends Resource

@@ -2,8 +2,7 @@
 
 namespace NatecSdk\Resources;
 
-use DateTime;
-use NatecSdk\Exceptions\NatecSdkException;
+use DateTimeInterface;
 use NatecSdk\Helpers;
 use ReflectionProperty;
 
@@ -16,20 +15,23 @@ abstract class Resource
      */
     public function __construct(array $data)
     {
-        foreach ($data as $property => $value) {
+        $noticeForMissingProperty = !defined(static::class . '::NOTICE_FOR_MISSING_PROPERTY')
+            || static::NOTICE_FOR_MISSING_PROPERTY; // @phpstan-ignore-line
+
+        foreach ($data as $key => $value) {
+            $property = Helpers::toCamelCase($key);
+
             if (property_exists(static::class, $property)) {
                 $propertyType = (new ReflectionProperty(static::class, $property))->getType()?->__toString();
 
-                if ($propertyType === DateTime::class) {
+                if ($propertyType === DateTimeInterface::class) {
                     /** @var string $value */
                     $this->{$property} = Helpers::castDateTime($value);
-//                } elseif ($propertyType === 'float' && gettype($value) === 'string' && is_numeric($value)) {
-//                    $this->{$property} = (float)$value;
                 } else {
                     $this->{$property} = $value;
                 }
-            } else {
-                trigger_error(sprintf('Unknown property %s for resource %s.', $property, static::class), E_USER_NOTICE);
+            } elseif ($noticeForMissingProperty) {
+                trigger_error(sprintf('Unknown property %s for resource %s', $property, static::class), E_USER_NOTICE);
             }
         }
     }

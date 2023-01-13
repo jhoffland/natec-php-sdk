@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
 use NatecSdk\Resources\AssortmentUpdate;
+use NatecSdk\Tests\TestHelpers;
 
 $data = [
     'id' => 45807,
@@ -19,10 +20,7 @@ $assortmentUpdate->productDescription = $data['productDescription'];
 $assortmentUpdate->newValue = $data['newValue'];
 $assortmentUpdate->oldValue = $data['oldValue'];
 $assortmentUpdate->type = $data['type'];
-$assortmentUpdate->updatedAt = DateTime::createFromFormat( // @phpstan-ignore-line
-    'Y-m-d\TH:i:s.v',
-    '2022-12-20T00:00:00.000'
-);
+$assortmentUpdate->updatedAt = TestHelpers::createDateTime('2022-12-20T00:00:00.000');
 
 return [
     'resourceClass' => AssortmentUpdate::class,

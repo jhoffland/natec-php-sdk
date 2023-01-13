@@ -3,7 +3,6 @@
 namespace NatecSdk\Querying;
 
 use NatecSdk\Client;
-use NatecSdk\Exceptions\NatecSdkException;
 
 trait Findable
 {

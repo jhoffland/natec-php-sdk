@@ -2,9 +2,8 @@
 
 namespace NatecSdk\Resources;
 
-use DateTime;
+use DateTimeInterface;
 use NatecSdk\Client;
-use NatecSdk\Exceptions\NatecSdkException;
 use NatecSdk\Querying\Findable;
 use NatecSdk\Querying\Queryable;
 
@@ -19,7 +18,7 @@ class Shipment extends Resource
     public string $sellToPostCode;
     public string $sellToContact;
     public ?string $sellToCountry;
-    public DateTime $requestedDeliveryDate;
+    public DateTimeInterface $requestedDeliveryDate;
     public string $orderNo;
     public string $shipToName;
     public string $shipToAddress;
@@ -27,7 +26,7 @@ class Shipment extends Resource
     public string $shipToCountry;
     public string $shipToPostCode;
     public string $shipToContact;
-    public DateTime $shipmentDate;
+    public DateTimeInterface $shipmentDate;
 
     /** @var array<\NatecSdk\Resources\ShipmentLine> */
     public array $lines = [];

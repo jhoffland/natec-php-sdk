@@ -2,7 +2,7 @@
 
 namespace NatecSdk\Resources;
 
-use DateTime;
+use DateTimeInterface;
 
 class ShipmentLine extends Resource
 {
@@ -11,6 +11,6 @@ class ShipmentLine extends Resource
     public string $no;
     public string $description;
     public int $quantityInvoiced;
-    public DateTime $requestedDeliveryDate;
-    public DateTime $shipmentDate;
+    public DateTimeInterface $requestedDeliveryDate;
+    public DateTimeInterface $shipmentDate;
 }

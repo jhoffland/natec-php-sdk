@@ -49,4 +49,9 @@ class HelpersTest extends TestCase
 
         Helpers::castDateTime('TestDateTimeString');
     }
+
+    public function testToCamelCase() : void
+    {
+        $this->assertEquals('documentType', Helpers::toCamelCase('document_type'));
+    }
 }

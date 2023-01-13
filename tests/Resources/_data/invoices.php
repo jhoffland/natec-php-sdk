@@ -1,6 +1,8 @@
 <?php declare(strict_types=1);
 
+use NatecSdk\Helpers;
 use NatecSdk\Resources\Invoice;
+use NatecSdk\Tests\TestHelpers;
 
 $data = [
     'postingDate' => '2022-12-20T00:00:00',
@@ -12,10 +14,7 @@ $data = [
 
 $invoice = new Invoice([]);
 $invoice->documentNo = $data['documentNo'];
-$invoice->postingDate = DateTime::createFromFormat( // @phpstan-ignore-line
-    'Y-m-d\TH:i:s.v',
-    '2022-12-20T00:00:00.000'
-);
+$invoice->postingDate = TestHelpers::createDateTime('2022-12-20T00:00:00.000');
 $invoice->description = $data['description'];
 $invoice->amount = $data['amount'];
 $invoice->remainingAmount = $data['remainingAmount'];

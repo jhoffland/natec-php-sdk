@@ -2,7 +2,7 @@
 
 namespace NatecSdk\Resources;
 
-use DateTime;
+use DateTimeInterface;
 use NatecSdk\Querying\Queryable;
 
 class AssortmentUpdate extends Resource
@@ -15,7 +15,7 @@ class AssortmentUpdate extends Resource
     public string $newValue;
     public ?string $oldValue;
     public string $type;
-    public DateTime $updatedAt;
+    public DateTimeInterface $updatedAt;
 
     /**
      * @codeCoverageIgnore

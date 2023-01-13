@@ -21,6 +21,7 @@ class ResourcesTest extends TestCase
             'AssortmentUpdate' => require __DIR__ . '/_data/assortment-updates.php',
             'FlashData' => require __DIR__ . '/_data/flashdata.php',
             'Invoice' => require __DIR__ . '/_data/invoices.php',
+            'Order' => require __DIR__ . '/_data/orders.php',
         ];
     }
 
@@ -47,7 +48,7 @@ class ResourcesTest extends TestCase
         $data['data']['newDataPoint'] = true;
 
         $this->expectNotice();
-        $this->expectNoticeMessage('Unknown property newDataPoint for resource NatecSdk\Resources\Invoice.');
+        $this->expectNoticeMessage('Unknown property newDataPoint for resource NatecSdk\Resources\Invoice');
 
         $this->assertEquals($data['expected'], new Invoice($data['data']));
     }
