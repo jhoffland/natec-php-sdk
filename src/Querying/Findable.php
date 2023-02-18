@@ -3,28 +3,26 @@
 namespace NatecSdk\Querying;
 
 use NatecSdk\Client;
+use PHPUnit\Framework\Attributes\CodeCoverageIgnore;
 
 trait Findable
 {
     /**
-     * @param array<string, mixed> $data
+     * @throws \NatecSdk\Exceptions\NatecSdkException
      */
-    abstract public function __construct(array $data);
-
-    /**
-     * @param \NatecSdk\Client $client
-     * @param int|string $id
-     * @return static
-     */
-    public static function find(Client $client, int|string $id): static
+    public static function find(Client $client, int|string $id): ?static
     {
         $endpoint = sprintf('%s/%s', static::endpoint(), $id);
 
-        return new static($client->get($endpoint));
+        $data = $client->get($endpoint);
+
+        if ($data === null) {
+            return null;
+        }
+
+        return static::create($data);
     }
 
-    /**
-     * @codeCoverageIgnore
-     */
+    #[CodeCoverageIgnore]
     abstract public static function endpoint(): string;
 }

@@ -1,19 +1,27 @@
+includes:
+    - vendor/phpstan/phpstan-phpunit/extension.neon
+    - vendor/phpstan/phpstan-phpunit/rules.neon
+
 parameters:
     level: 9
     paths:
         - src
         - tests
-    earlyTerminatingMethodCalls:
-        NatecSdk\Client:
-            - parseException
+    exceptions:
+        check:
+            missingCheckedExceptionInThrows: true
+            tooWideThrowType: true
     ignoreErrors:
         -
-            message: '#Call to an undefined static method NatecSdk\\Resources\\Resource::endpoint\(\)#'
+            message: '#Call to an undefined static method T of NatecSdk\\Resources\\Resource::endpoint\(\)#'
             path: src/Querying/ResultSet.php
             count: 1
             reportUnmatched: true
         -
             message: '#Unsafe usage of new static\(\)#'
-            path: src/Querying/Findable.php
+            path: src/Resources/Resource.php
             count: 1
             reportUnmatched: true
+        -
+            message: "#^Method NatecSdk\\\\Tests\\\\.*\\:\\:.*\\(\\) throws checked exception .* but it's missing from the PHPDoc @throws tag\\.$#"
+            path: tests/*

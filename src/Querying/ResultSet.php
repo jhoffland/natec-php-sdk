@@ -7,11 +7,13 @@ use NatecSdk\Client;
 use NatecSdk\Resources\Resource;
 
 /**
- * @implements \Iterator<integer, Resource>
+ * @template T of Resource
+ *
+ * @implements \Iterator<integer, T>
  */
 class ResultSet implements Iterator
 {
-    /** @var array<Resource> */
+    /** @var array<T> */
     private array $retrievedResources = [];
 
     private int $currentKey = 0;
@@ -19,22 +21,25 @@ class ResultSet implements Iterator
     private int $lastPage;
 
     /**
-     * @param class-string<Resource> $resourceName
-     * @param \NatecSdk\Client $client
+     * @param class-string<T> $resourceName
      * @param array<string, string> $queryParams
-     * @param int $currentPage
-     * @param int $pageSize
+     * @param positive-int $currentPage
+     * @param positive-int $pageSize
+     * @throws \NatecSdk\Exceptions\NatecSdkException
      */
     public function __construct(
         private readonly string $resourceName,
         private readonly Client $client,
         private readonly array $queryParams,
         private int $currentPage,
-        private readonly int $pageSize
+        private readonly int $pageSize,
     ) {
         $this->get($this->currentPage);
     }
 
+    /**
+     * @throws \NatecSdk\Exceptions\NatecSdkException
+     */
     private function get(int $page): void
     {
         /** @var string $endpoint */
@@ -46,23 +51,15 @@ class ResultSet implements Iterator
          *     per_page: positive-int,
          *     current_page: positive-int,
          *     last_page: positive-int,
-         *     first_page_url?: string,
-         *     last_page_url?: string,
-         *     next_page_url?: string,
-         *     prev_page_url?: ?string,
-         *     path?: string,
-         *     from?: positive-int,
-         *     to?: positive-int,
-         *     links?: array<array{ url: ?string, label: string, active: bool }>
          * } $result
          */
-        $result = $this->client->get($endpoint, array_merge([
+        $result = $this->client->get($endpoint, array_merge($this->queryParams, [
             'page' => (string)$page,
-            'size' => (string)$this->pageSize
-        ], $this->queryParams));
+            'size' => (string)$this->pageSize,
+        ]));
 
         foreach ($result['data'] as $dataPerResource) {
-            $this->retrievedResources[] = new $this->resourceName($dataPerResource);
+            $this->retrievedResources[] = $this->resourceName::create($dataPerResource);
         }
 
         $this->currentPage = $result['current_page'];
@@ -70,18 +67,24 @@ class ResultSet implements Iterator
     }
 
     /**
-     * @return array<Resource>
+     * @return array<T>
      */
     public function allRetrieved(): array
     {
         return $this->retrievedResources;
     }
 
+    /**
+     * @return T
+     */
     public function current(): Resource
     {
         return $this->retrievedResources[$this->currentKey];
     }
 
+    /**
+     * @throws \NatecSdk\Exceptions\NatecSdkException
+     */
     public function next(): void
     {
         $this->currentKey++;

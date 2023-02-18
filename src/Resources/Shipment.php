@@ -2,62 +2,64 @@
 
 namespace NatecSdk\Resources;
 
-use DateTimeInterface;
+use DateTimeImmutable;
 use NatecSdk\Client;
 use NatecSdk\Querying\Findable;
 use NatecSdk\Querying\Queryable;
+use PHPUnit\Framework\Attributes\CodeCoverageIgnore;
 
 class Shipment extends Resource
 {
     use Queryable, Findable;
 
-    public string $no;
-    public string $sellToCustomerName;
-    public string $sellToAddress;
-    public string $sellToCity;
-    public string $sellToPostCode;
-    public string $sellToContact;
-    public ?string $sellToCountry;
-    public DateTimeInterface $requestedDeliveryDate;
-    public string $orderNo;
-    public string $shipToName;
-    public string $shipToAddress;
-    public string $shipToCity;
-    public string $shipToCountry;
-    public string $shipToPostCode;
-    public string $shipToContact;
-    public DateTimeInterface $shipmentDate;
-
-    /** @var array<\NatecSdk\Resources\ShipmentLine> */
-    public array $lines = [];
-
     /**
-     * @param array<string, mixed> $data
-     * @throws \NatecSdk\Exceptions\NatecSdkException
+     * @param array<\NatecSdk\Resources\ShipmentLine> $lines
      */
-    public function __construct(array $data)
+    final public function __construct(
+        public readonly string $no,
+        public readonly string $sellToCustomerName,
+        public readonly string $sellToAddress,
+        public readonly string $sellToCity,
+        public readonly string $sellToPostCode,
+        public readonly string $sellToContact,
+        public readonly ?string $sellToCountry,
+        public readonly DateTimeImmutable $requestedDeliveryDate,
+        public readonly string $orderNo,
+        public readonly string $shipToName,
+        public readonly string $shipToAddress,
+        public readonly string $shipToCity,
+        public readonly string $shipToCountry,
+        public readonly string $shipToPostCode,
+        public readonly string $shipToContact,
+        public readonly DateTimeImmutable $shipmentDate,
+        public readonly array $lines = [],
+    ) {
+    }
+
+    public static function create(array $data, array $propertyValues = []): static
     {
+        $propertyValues['lines'] = [];
+
         /** @var array<array<string, mixed>> $lines */
         $lines = $data['lines'];
 
         foreach ($lines as $line) {
-            $this->lines[] = new ShipmentLine($line);
+            $propertyValues['lines'][] = ShipmentLine::create($line);
         }
 
         unset($data['lines']);
 
-        parent::__construct($data);
+        return parent::create($data, $propertyValues);
     }
 
     /**
-     * @param \NatecSdk\Client $client
      * @param array<string, string> $query
      * @return array<\NatecSdk\Resources\FlashData>
      * @throws \NatecSdk\Exceptions\NatecSdkException
      */
     public function flashData(Client $client, array $query = []): array
     {
-        $endpoint = sprintf('%s/%s/flashdata', static::endpoint(), $this->no);
+        $endpoint = sprintf('%s/%s/flashdata', self::endpoint(), $this->no);
 
         /** @var array<array<string, mixed>> $data */
         $data = $client->get($endpoint, $query);
@@ -65,15 +67,13 @@ class Shipment extends Resource
         $flashData = [];
 
         foreach ($data as $dataPerResource) {
-            $flashData[] = new FlashData($dataPerResource);
+            $flashData[] = FlashData::create($dataPerResource);
         }
 
         return $flashData;
     }
 
-    /**
-     * @codeCoverageIgnore
-     */
+    #[CodeCoverageIgnore]
     public static function endpoint(): string
     {
         return '/shipments';

@@ -14,7 +14,6 @@ abstract class HttpTestCase extends TestCase
     /**
      * @param array<mixed> $mockQueue
      * @param array<empty> $guzzleHistory
-     * @return \GuzzleHttp\Client
      */
     protected function createGuzzleClient(array $mockQueue, array &$guzzleHistory): GuzzleClient
     {
@@ -23,7 +22,7 @@ abstract class HttpTestCase extends TestCase
 
         return new GuzzleClient([
             'http_errors' => true,
-            'handler' => $handlerStack
+            'handler'     => $handlerStack,
         ]);
     }
 
@@ -36,16 +35,15 @@ abstract class HttpTestCase extends TestCase
      * @param array<\Psr\Http\Message\RequestInterface> $expectedRequests
      * @param array<\Psr\Http\Message\ResponseInterface> $expectedResponses
      * @param array<\Exception> $expectedErrors
-     * @return void
      */
     protected function evaluateGuzzleHistory(
         array $history,
         array $expectedRequests,
         array $expectedResponses,
-        array $expectedErrors
+        array $expectedErrors,
     ): void {
         $this->assertSameSize($expectedRequests, $history);
-        $this->assertSame(count($expectedResponses) + count($expectedErrors), count($history));
+        $this->assertCount(count($expectedResponses) + count($expectedErrors), $history);
 
         $requestCount = 0;
         $responseCount = 0;

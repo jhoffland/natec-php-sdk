@@ -2,27 +2,30 @@
 
 namespace NatecSdk;
 
-use Exception;
 use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\ClientInterface as GuzzleClientInterface;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Psr7\Message;
 use GuzzleHttp\Psr7\Request;
 use NatecSdk\Exceptions\NatecApiException;
 use NatecSdk\Exceptions\NatecSdkException;
 use Psr\Http\Message\ResponseInterface;
+use Throwable;
 
 class Client
 {
-    private GuzzleClient $client;
+    protected const GET_METHOD = 'GET';
+    protected const POST_METHOD = 'POST';
+
+    private GuzzleClientInterface $client;
 
     public function __construct(
         private readonly string $apiToken,
-        private readonly string $apiUrl = 'https://klantportaal.natec.com/api/v1'
+        private readonly string $apiUrl = 'https://klantportaal.natec.com/api/v1',
     ) {
     }
 
     /**
-     * @param string $endpoint
      * @param array<string, string> $queryParams
      * @param array<string, string|array<string>> $headers
      * @return array<mixed>|null
@@ -31,16 +34,15 @@ class Client
     public function get(string $endpoint, array $queryParams = [], array $headers = []): ?array
     {
         try {
-            $request = $this->createRequest('GET', $endpoint, null, $queryParams, $headers);
+            $request = $this->createRequest(self::GET_METHOD, $endpoint, null, $queryParams, $headers);
             $response = $this->client()->send($request);
             return $this->parseResponse($response);
-        } catch (Exception $exception) {
+        } catch (Throwable $exception) {
             $this->parseException($exception);
         }
     }
 
     /**
-     * @param string $endpoint
      * @param array<mixed> $body
      * @param array<string, string|array<string>> $headers
      * @return array<mixed>|null
@@ -49,23 +51,26 @@ class Client
     public function post(string $endpoint, array $body, array $headers = []): ?array
     {
         try {
-            $request = $this->createRequest('POST', $endpoint, $body, [], $headers);
+            $request = $this->createRequest(self::POST_METHOD, $endpoint, $body, [], $headers);
             $response = $this->client()->send($request);
             return $this->parseResponse($response);
-        } catch (Exception $exception) {
+        } catch (Throwable $exception) {
             $this->parseException($exception);
         }
     }
 
     /**
-     * @param \Psr\Http\Message\ResponseInterface $response
      * @return array<mixed>|null
      * @throws \NatecSdk\Exceptions\NatecSdkException
      */
     private function parseResponse(ResponseInterface $response): ?array
     {
-        Message::rewindBody($response);
-        $body = $response->getBody()->getContents();
+        try {
+            Message::rewindBody($response);
+            $body = $response->getBody()->getContents();
+        } catch (Throwable $exception) {
+            throw NatecSdkException::createFromException($exception);
+        }
 
         if (strlen($body) < 1) {
             return null;
@@ -74,7 +79,7 @@ class Client
         $decodedBody = json_decode($body, true);
 
         if (!is_array($decodedBody)) {
-            throw new NatecSdkException(sprintf('JSON decode of the response body failed. Response: ' . $body));
+            throw new NatecSdkException('JSON decode of the response body failed. Response: ' . $body);
         }
 
         return $decodedBody;
@@ -83,7 +88,7 @@ class Client
     /**
      * @throws \NatecSdk\Exceptions\NatecSdkException
      */
-    private function parseException(Exception $exception): void
+    private function parseException(Throwable $exception): never
     {
         if ($exception instanceof NatecSdkException) {
             throw $exception;
@@ -94,11 +99,13 @@ class Client
         }
     }
 
-    private function client(): GuzzleClient
+    private function client(): GuzzleClientInterface
     {
         if (!isset($this->client)) {
             $this->client = new GuzzleClient([ // @codeCoverageIgnore
-                'http_errors' => true
+                'http_errors' => true,
+                'cookies'     => false,
+                'timeout'     => 5,
             ]);
         }
 
@@ -106,12 +113,9 @@ class Client
     }
 
     /**
-     * @param string $method
-     * @param string $endpoint
      * @param array<mixed>|null $body
      * @param array<string, string> $queryParams
      * @param array<string, string|array<string>> $headers
-     * @return \GuzzleHttp\Psr7\Request
      * @throws \NatecSdk\Exceptions\NatecSdkException
      */
     private function createRequest(
@@ -119,10 +123,10 @@ class Client
         string $endpoint,
         ?array $body = null,
         array $queryParams = [],
-        array $headers = []
+        array $headers = [],
     ): Request {
         $headers = array_merge($headers, [
-            'Accept' => 'application/json',
+            'Accept'        => 'application/json',
             'Authorization' => 'Bearer ' . $this->apiToken,
         ]);
 
@@ -141,9 +145,7 @@ class Client
     }
 
     /**
-     * @param string $endpoint
      * @param array<string, string> $queryParams
-     * @return string
      */
     private function formatUri(string $endpoint, array $queryParams = []): string
     {
@@ -163,11 +165,8 @@ class Client
 
     /**
      * Set a custom Guzzle Client, used to make the API requests.
-     *
-     * @param \GuzzleHttp\Client $client
-     * @return void
      */
-    public function setGuzzleClient(GuzzleClient $client): void
+    public function setGuzzleClient(GuzzleClientInterface $client): void
     {
         $this->client = $client;
     }

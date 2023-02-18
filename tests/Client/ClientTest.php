@@ -9,7 +9,10 @@ use NatecSdk\Client as NatecClient;
 use NatecSdk\Exceptions\NatecApiException;
 use NatecSdk\Exceptions\NatecSdkException;
 use NatecSdk\Tests\HttpTestCase;
+use PHPUnit\Framework\Attributes\UsesClass;
 
+#[UsesClass(NatecApiException::class)]
+#[UsesClass(NatecSdkException::class)]
 class ClientTest extends HttpTestCase
 {
     public function testValidGetRequest(): void
@@ -42,9 +45,6 @@ class ClientTest extends HttpTestCase
         $this->evaluateGuzzleHistory($guzzleHistory, [$data['expectedRequest']], [$data['response']], []);
     }
 
-    /**
-     * @uses \NatecSdk\Exceptions\NatecApiException
-     */
     public function testApiExceptionParsing(): void
     {
         $natecClient = new NatecClient('xxx', 'https://php-sdk.natec.com/api/v1/');
@@ -54,17 +54,14 @@ class ClientTest extends HttpTestCase
             new Response(
                 400,
                 [],
-                json_encode(['message' => 'Invalid data'], JSON_THROW_ON_ERROR)
-            )
+                json_encode(['message' => 'Invalid data'], JSON_THROW_ON_ERROR),
+            ),
         ], $guzzleHistory));
 
         $this->expectException(NatecApiException::class);
         $natecClient->post('/test-invalid-post', ['key' => 'value']);
     }
 
-    /**
-     * @uses \NatecSdk\Exceptions\NatecSdkException
-     */
     public function testSdkExceptionParsing(): void
     {
         $natecClient = new NatecClient('xxx', 'https://php-sdk.natec.com/api/v1/');
@@ -74,11 +71,11 @@ class ClientTest extends HttpTestCase
             new ConnectException(
                 'A Connection Exception',
                 new Request('GET', 'https://php-sdk.natec.com/api/v1/something-wrong', [
-                    'Accept' => 'application/json',
+                    'Accept'        => 'application/json',
                     'Authorization' => 'Bearer xxx',
-                    'User-Agent' => 'NatecSdk/Test'
-                ])
-            )
+                    'User-Agent'    => 'NatecSdk/Test',
+                ]),
+            ),
         ], $guzzleHistory));
 
         $this->expectException(NatecSdkException::class);
@@ -94,12 +91,9 @@ class ClientTest extends HttpTestCase
 
         $result = $natecClient->get('/empty');
 
-        $this->assertSame(null, $result);
+        $this->assertNull($result);
     }
 
-    /**
-     * @uses \NatecSdk\Exceptions\NatecSdkException
-     */
     public function testInvalidJsonResponse(): void
     {
         $natecClient = new NatecClient('xxx', 'https://php-sdk.natec.com/api/v1/');
@@ -109,8 +103,8 @@ class ClientTest extends HttpTestCase
             new Response(
                 200,
                 [],
-                '{"key": "value"]'
-            )
+                '{"key": "value"]',
+            ),
         ], $guzzleHistory));
 
         $this->expectException(NatecSdkException::class);

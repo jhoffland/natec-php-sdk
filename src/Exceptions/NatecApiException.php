@@ -2,11 +2,11 @@
 
 namespace NatecSdk\Exceptions;
 
-use Exception;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Psr7\Message;
 use LogicException;
 use Psr\Http\Message\ResponseInterface;
+use Throwable;
 
 class NatecApiException extends NatecSdkException
 {
@@ -20,17 +20,25 @@ class NatecApiException extends NatecSdkException
         string $message,
         public readonly array $errors,
         public readonly ResponseInterface $response,
-        BadResponseException $previous
+        BadResponseException $previous,
     ) {
         parent::__construct($message, 0, $previous);
     }
 
+    /**
+     * @throws \NatecSdk\Exceptions\NatecSdkException
+     */
     public static function createForBadResponse(BadResponseException $exception): self
     {
         $response = $exception->getResponse();
 
-        Message::rewindBody($response);
-        $body = $response->getBody()->getContents();
+        try {
+            Message::rewindBody($response);
+            $body = $response->getBody()->getContents();
+        } catch (Throwable $exception) {
+            throw NatecSdkException::createFromException($exception);
+        }
+
         $decodedBody = json_decode($body, true);
 
         $statusCode = $response->getStatusCode();
@@ -53,10 +61,13 @@ class NatecApiException extends NatecSdkException
         return new self($message, $errors, $response, $exception);
     }
 
-    public static function createFromException(Exception $exception): NatecSdkException
+    /**
+     * @throws \LogicException
+     */
+    public static function createFromException(Throwable $exception): NatecSdkException
     {
         throw new LogicException(
-            'It is not allowed to create a NatecApiException using the NatecSdkException::createFromException method.'
+            'It is not allowed to create a NatecApiException using the NatecSdkException::createFromException method.',
         );
     }
 }

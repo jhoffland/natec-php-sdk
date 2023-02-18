@@ -4,11 +4,14 @@ namespace NatecSdk\Resources;
 
 class Price extends Resource
 {
-    public int $vpe;
-    public string $vpeName;
-    public string $grossPrice;
-    public string $netPrice;
-    public string $discount;
-    public string $brutoPriceWattpiek;
-    public string $nettoPriceWattpiek;
+    final public function __construct(
+        public readonly int $vpe,
+        public readonly string $vpeName,
+        public readonly string $grossPrice,
+        public readonly string $netPrice,
+        public readonly string $discount,
+        public readonly string $brutoPriceWattpiek,
+        public readonly string $nettoPriceWattpiek,
+    ) {
+    }
 }

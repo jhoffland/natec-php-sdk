@@ -5,13 +5,13 @@ namespace NatecSdk\Tests\Querying;
 use GuzzleHttp\Psr7\Response;
 use NatecSdk\Client;
 use NatecSdk\Resources\Invoice;
+use NatecSdk\Tests\HttpTestCase;
+use PHPUnit\Framework\Attributes\UsesClass;
 
-class FindableTest extends \NatecSdk\Tests\HttpTestCase
+#[UsesClass(Invoice::class)]
+#[UsesClass(Client::class)]
+class FindableTest extends HttpTestCase
 {
-    /**
-     * @uses \NatecSdk\Resources\Invoice
-     * @uses \NatecSdk\Client
-     */
     public function test() : void
     {
         $natecClient = new Client('xxx', 'https://php-sdk.natec.com/api/v1');
@@ -29,7 +29,7 @@ class FindableTest extends \NatecSdk\Tests\HttpTestCase
         $this->assertEquals(1, count($guzzleHistory));
         $this->assertEquals(
             'https://php-sdk.natec.com/api/v1/invoices/GVFN22-11122',
-            $guzzleHistory[0]['request']->getUri()
+            $guzzleHistory[0]['request']->getUri(),
         );
     }
 }

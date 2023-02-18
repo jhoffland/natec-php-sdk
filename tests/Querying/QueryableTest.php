@@ -7,14 +7,13 @@ use NatecSdk\Client;
 use NatecSdk\Querying\ResultSet;
 use NatecSdk\Resources\Invoice;
 use NatecSdk\Tests\HttpTestCase;
+use PHPUnit\Framework\Attributes\UsesClass;
 
+#[UsesClass(Client::class)]
+#[UsesClass(Invoice::class)]
+#[UsesClass(ResultSet::class)]
 class QueryableTest extends HttpTestCase
 {
-    /**
-     * @uses \NatecSdk\Client
-     * @uses \NatecSdk\Resources\Invoice
-     * @uses \NatecSdk\Querying\ResultSet
-     */
     public function test(): void
     {
         $natecClient = new Client('xxx', 'https://php-sdk.natec.com/api/v1');
@@ -24,7 +23,7 @@ class QueryableTest extends HttpTestCase
         $response = new Response(
             200,
             [],
-            file_get_contents(__DIR__ . '/_data/invoices_page1.json') // @phpstan-ignore-line
+            file_get_contents(__DIR__ . '/_data/invoices_page1.json'), // @phpstan-ignore-line
         );
 
         $natecClient->setGuzzleClient($this->createGuzzleClient([$response, $response], $guzzleHistory));

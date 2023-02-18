@@ -2,15 +2,18 @@
 
 namespace NatecSdk\Resources;
 
-use DateTimeInterface;
+use DateTimeImmutable;
 
 class ShipmentLine extends Resource
 {
-    public string $documentNo;
-    public string $lineNo;
-    public string $no;
-    public string $description;
-    public int $quantityInvoiced;
-    public DateTimeInterface $requestedDeliveryDate;
-    public DateTimeInterface $shipmentDate;
+    final public function __construct(
+        public readonly string $documentNo,
+        public readonly string $lineNo,
+        public readonly string $no,
+        public readonly string $description,
+        public readonly int $quantityInvoiced,
+        public readonly DateTimeImmutable $requestedDeliveryDate,
+        public readonly DateTimeImmutable $shipmentDate,
+    ) {
+    }
 }

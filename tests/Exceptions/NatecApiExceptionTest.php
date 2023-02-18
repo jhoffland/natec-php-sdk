@@ -10,6 +10,7 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use LogicException;
 use NatecSdk\Exceptions\NatecApiException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class NatecApiExceptionTest extends TestCase
@@ -17,46 +18,44 @@ class NatecApiExceptionTest extends TestCase
     /**
      * @return array<string, array{0: \GuzzleHttp\Exception\BadResponseException, 1: string, 2: array<mixed>}>
      */
-    public function dataProvider(): array
+    public static function dataProvider(): array
     {
         $request = new Request('GET', '/natec-sdk/test');
 
         return [
-            'Test ClientException with error' => [
-                new ClientException('Client exception', $request, new Response(404, [], json_encode([
-                    'error' => 'Test Error'
-                ], JSON_THROW_ON_ERROR))),
+            'Test ClientException with error'              => [
+                new ClientException(
+                    'Client exception',
+                    $request,
+                    new Response(404, [], json_encode(['error' => 'Test Error'], JSON_THROW_ON_ERROR)),
+                ),
                 'Error: Test Error (404)',
-                []
+                [],
             ],
             'Test ClientException with message and errors' => [
                 new ClientException('Client exception', $request, new Response(400, [], json_encode([
                     'message' => 'Invalid data',
-                    'errors' => ['field' => 'invalid input for field']
+                    'errors'  => ['field' => 'invalid input for field'],
                 ], JSON_THROW_ON_ERROR))),
                 'Message: Invalid data (400)',
-                ['field' => 'invalid input for field']
+                ['field' => 'invalid input for field'],
             ],
-            'Test ServerException' => [
+            'Test ServerException'                         => [
                 new ServerException('Server exception', $request, new Response(500, [])),
                 'Error 500: Internal Server Error',
-                []
-            ]
+                [],
+            ],
         ];
     }
 
     /**
-     * @dataProvider dataProvider
-     *
-     * @param \GuzzleHttp\Exception\BadResponseException $previousException
-     * @param string $message
      * @param array<mixed> $errors
-     * @return void
      */
+    #[DataProvider('dataProvider')]
     public function testCreateForBadResponse(
         BadResponseException $previousException,
         string $message,
-        array $errors
+        array $errors,
     ): void {
         $exception = NatecApiException::createForBadResponse($previousException);
 

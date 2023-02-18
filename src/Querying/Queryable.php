@@ -3,27 +3,26 @@
 namespace NatecSdk\Querying;
 
 use NatecSdk\Client;
+use PHPUnit\Framework\Attributes\CodeCoverageIgnore;
 
 trait Queryable
 {
     /**
-     * @param \NatecSdk\Client $client
      * @param array<string, string> $query
      * @param positive-int $startPage
      * @param positive-int $pageSize
-     * @return \NatecSdk\Querying\ResultSet
+     * @return \NatecSdk\Querying\ResultSet<static>
+     * @throws \NatecSdk\Exceptions\NatecSdkException
      */
     public static function get(
         Client $client,
         array $query = [],
         int $startPage = 1,
-        int $pageSize = 25
+        int $pageSize = 25,
     ): ResultSet {
         return new ResultSet(static::class, $client, $query, $startPage, $pageSize);
     }
 
-    /**
-     * @codeCoverageIgnore
-     */
+    #[CodeCoverageIgnore]
     abstract public static function endpoint(): string;
 }

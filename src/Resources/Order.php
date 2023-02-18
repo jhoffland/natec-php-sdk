@@ -2,8 +2,9 @@
 
 namespace NatecSdk\Resources;
 
-use DateTimeInterface;
+use DateTimeImmutable;
 use NatecSdk\Querying\Queryable;
+use PHPUnit\Framework\Attributes\CodeCoverageIgnore;
 
 class Order extends Resource
 {
@@ -11,49 +12,49 @@ class Order extends Resource
 
     public const NOTICE_FOR_MISSING_PROPERTY = false;
 
-    public string $no;
-    public ?string $quoteNo;
-    public DateTimeInterface $documentDate;
-    public DateTimeInterface $postingDate;
-    public DateTimeInterface $orderDate;
-    public DateTimeInterface $dueDate;
-    public DateTimeInterface $requestedDeliveryDate;
-    public string $externalDocumentNo;
-    public string $yourReference;
-    public bool $pricesIncludingVat;
-    public string $paymentTermsCode;
-    public string $shipToCode;
-    public string $shipToName;
-    public string $shipToAddress;
-    public string $shipToPostCode;
-    public string $shipToCity;
-    public DateTimeInterface $shipmentDate;
-    public string $shippingTime;
-
-    /** @var array<\NatecSdk\Resources\OrderLine> */
-    public array $lines = [];
-
     /**
-     * @param array<string, mixed> $data
-     * @throws \NatecSdk\Exceptions\NatecSdkException
+     * @param array<\NatecSdk\Resources\OrderLine> $lines
      */
-    public function __construct(array $data)
+    final public function __construct(
+        public readonly string $no,
+        public readonly ?string $quoteNo,
+        public readonly DateTimeImmutable $documentDate,
+        public readonly DateTimeImmutable $postingDate,
+        public readonly DateTimeImmutable $orderDate,
+        public readonly DateTimeImmutable $dueDate,
+        public readonly DateTimeImmutable $requestedDeliveryDate,
+        public readonly string $externalDocumentNo,
+        public readonly string $yourReference,
+        public readonly bool $pricesIncludingVat,
+        public readonly string $paymentTermsCode,
+        public readonly string $shipToCode,
+        public readonly string $shipToName,
+        public readonly string $shipToAddress,
+        public readonly string $shipToPostCode,
+        public readonly string $shipToCity,
+        public readonly DateTimeImmutable $shipmentDate,
+        public readonly string $shippingTime,
+        public readonly array $lines,
+    ) {
+    }
+
+    public static function create(array $data, array $propertyValues = []): static
     {
+        $propertyValues['lines'] = [];
+
         /** @var array<array<string, mixed>> $lines */
         $lines = $data['lines'];
 
         foreach ($lines as $line) {
-            $this->lines[] = new OrderLine($line);
+            $propertyValues['lines'][] = OrderLine::create($line);
         }
 
         unset($data['lines']);
 
-        parent::__construct($data);
+        return parent::create($data, $propertyValues);
     }
 
-    /**
-     * @codeCoverageIgnore
-     */
+    #[CodeCoverageIgnore]
     public static function endpoint(): string
     {
         return '/orders';

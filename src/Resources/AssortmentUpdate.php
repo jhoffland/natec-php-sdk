@@ -2,24 +2,27 @@
 
 namespace NatecSdk\Resources;
 
-use DateTimeInterface;
+use DateTimeImmutable;
 use NatecSdk\Querying\Queryable;
+use NatecSdk\Resources\Types\AssortmentUpdateType;
+use PHPUnit\Framework\Attributes\CodeCoverageIgnore;
 
 class AssortmentUpdate extends Resource
 {
     use Queryable;
 
-    public int $id;
-    public string $productNumber;
-    public string $productDescription;
-    public string $newValue;
-    public ?string $oldValue;
-    public string $type;
-    public DateTimeInterface $updatedAt;
+    final public function __construct(
+        public readonly int $id,
+        public readonly string $productNumber,
+        public readonly string $productDescription,
+        public readonly string $newValue,
+        public readonly ?string $oldValue,
+        public readonly AssortmentUpdateType $type,
+        public readonly DateTimeImmutable $updatedAt,
+    ) {
+    }
 
-    /**
-     * @codeCoverageIgnore
-     */
+    #[CodeCoverageIgnore]
     public static function endpoint(): string
     {
         return '/assortment-updates';

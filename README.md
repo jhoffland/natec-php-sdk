@@ -8,6 +8,7 @@
 
 ```php
 use NatecSdk\Client;
+use NatecSdk\Resources\Types\AssortmentUpdateType;
 use NatecSdk\Resources\AssortmentUpdate;
 use NatecSdk\Resources\Invoice;
 use NatecSdk\Resources\Shipment;
@@ -17,7 +18,7 @@ $client = new Client($apiToken);
 
 // Get an iterator with all resources, matching the filter (query).
 $assortmentUpdateIterator = AssortmentUpdate::get($client, [
-    'type' => 'product_expected_arrival'
+    'type' => AssortmentUpdateType::PRODUCT_EXPECTED_ARRIVAL->value
 ]);
 
 foreach($assortmentUpdateIterator as $assortmentUpdate) {

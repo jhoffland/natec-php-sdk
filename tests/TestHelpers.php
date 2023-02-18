@@ -2,18 +2,35 @@
 
 namespace NatecSdk\Tests;
 
-use DateTime;
-use DateTimeInterface;
+use DateTimeImmutable;
 use DateTimeZone;
 
 class TestHelpers
 {
-    public static function createDateTime(string $datetime) : DateTimeInterface
+    public static function createDateTime(string $datetime) : DateTimeImmutable
     {
-        return DateTime::createFromFormat( // @phpstan-ignore-line
+        return DateTimeImmutable::createFromFormat( // @phpstan-ignore-line
             'Y-m-d\TH:i:s.v',
             $datetime,
-            new DateTimeZone('UTC')
+            new DateTimeZone('Europe/Amsterdam'),
         );
+    }
+
+    /**
+     * @param array<mixed> $input
+     * @return array<mixed>
+     */
+    public static function shuffleArray(array $input): array
+    {
+        $shuffled = [];
+
+        $keys = array_keys($input);
+        shuffle($keys);
+
+        foreach ($keys as $key) {
+            $shuffled[$key] = $input[$key];
+        }
+
+        return $shuffled;
     }
 }
