@@ -2,62 +2,37 @@
 
 namespace NatecSdk\Resources;
 
-use NatecSdk\Querying\Queryable;
-use PHPUnit\Framework\Attributes\CodeCoverageIgnore;
+use NatecSdk\Querying\QueryableTrait;
 
-class Product extends Resource
+class Product extends AbstractResource
 {
-    use Queryable;
+    use QueryableTrait;
 
-    /**
-     * @param array<\NatecSdk\Resources\Price> $prices
-     */
     final public function __construct(
-        public readonly string $productNumber,
-        public readonly string $category,
-        public readonly int $itemCategoryCode,
-        public readonly string $brand,
-        public readonly ?string $subBrand,
+        public readonly int $id,
+        public readonly string $no,
+        public readonly ?string $vendorItemNo,
         public readonly string $description,
-        public readonly ?string $extraDescription,
+        public readonly int $categoryId,
+        public readonly ?int $brandId,
+        public readonly ?int $subbrandId,
+        public readonly string $itemCategoryCode,
         public readonly string $productGroupCode,
         public readonly string $itemDiscGroup,
-        public readonly int $wattpiek,
-        public readonly ?string $cellType,
-        public readonly ?string $oType,
-        public readonly ?int $numberOfCells,
-        public readonly ?int $voltage,
-        public readonly ?int $fase,
-        public readonly ?int $length,
-        public readonly ?int $width,
-        public readonly ?int $height,
-        public readonly string $stockInformation,
-        public readonly ?string $articleNumberFabric,
-        public readonly ?string $image,
-        public readonly ?string $datasheet,
-        public readonly string $extraDeliveryTimeInfo,
-        public readonly bool $expiringItem,
-        public readonly array $prices,
+        public readonly Category $category,
     ) {
     }
 
     public static function create(array $data, array $propertyValues = []): static
     {
-        $propertyValues['prices'] = [];
-
-        /** @var array<array<string, mixed>> $prices */
-        $prices = $data['prices'];
-
-        foreach ($prices as $price) {
-            $propertyValues['prices'] = Price::create($price);
-        }
-
-        unset($data['prices']);
+        /** @var array<string, mixed> $categoryData */
+        $categoryData = $data['category'];
+        $propertyValues['category'] = Category::create($categoryData);
+        unset($data['category']);
 
         return parent::create($data, $propertyValues);
     }
 
-    #[CodeCoverageIgnore]
     public static function endpoint(): string
     {
         return '/products';

@@ -4,13 +4,11 @@ namespace NatecSdk\Resources;
 
 use BackedEnum;
 use DateTimeImmutable;
-use NatecSdk\Exceptions\NatecSdkException;
 use NatecSdk\Helpers;
-use ReflectionException;
 use ReflectionNamedType;
 use ReflectionProperty;
 
-abstract class Resource
+abstract class AbstractResource
 {
     /**
      * @param array<string, mixed> $data
@@ -21,9 +19,6 @@ abstract class Resource
     {
         $resourceClassName = static::class;
 
-        $noticeForMissingProperty = !defined($resourceClassName . '::NOTICE_FOR_MISSING_PROPERTY')
-            || static::NOTICE_FOR_MISSING_PROPERTY; // @phpstan-ignore-line
-
         /**
          * @var string $key
          * @var string|int|float|boolean|null $value
@@ -32,11 +27,8 @@ abstract class Resource
             $property = Helpers::toCamelCase($key);
 
             if (property_exists($resourceClassName, $property)) {
-                try {
-                    $propertyType = (new ReflectionProperty($resourceClassName, $property))->getType();
-                } catch (ReflectionException $exception) {
-                    throw NatecSdkException::createFromException($exception);
-                }
+                // @phpstan-ignore-next-line
+                $propertyType = (new ReflectionProperty($resourceClassName, $property))->getType();
 
                 if ($propertyType instanceof ReflectionNamedType && !$propertyType->isBuiltin()) {
                     $propertyTypeClassName = $propertyType->getName();
@@ -55,9 +47,11 @@ abstract class Resource
                     }
                 }
 
+                if ($propertyType?->allowsNull() === true && is_string($value) && strlen($value) < 1) {
+                    $value = null;
+                }
+
                 $propertyValues[$property] = $value;
-            } elseif ($noticeForMissingProperty) {
-                trigger_error(sprintf('Unknown property %s for resource %s', $property, $resourceClassName));
             }
         }
 

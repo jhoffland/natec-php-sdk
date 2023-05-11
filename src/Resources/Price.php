@@ -2,7 +2,7 @@
 
 namespace NatecSdk\Resources;
 
-class Price extends Resource
+class Price extends AbstractResource
 {
     final public function __construct(
         public readonly int $vpe,

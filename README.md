@@ -17,19 +17,20 @@ $apiToken = 'xxx';
 $client = new Client($apiToken);
 
 // Get an iterator with all resources, matching the filter (query).
-$assortmentUpdateIterator = AssortmentUpdate::get($client, [
+$assortmentUpdates = AssortmentUpdate::get($client, [
     'type' => AssortmentUpdateType::PRODUCT_EXPECTED_ARRIVAL->value
 ]);
 
-foreach($assortmentUpdateIterator as $assortmentUpdate) {
+foreach($assortmentUpdates as $assortmentUpdate) {
     var_dump($assortmentUpdate);
 }
 
-// Get all resources retrieved by the iterator.
-var_dump($assortmentUpdateIterator->allRetrieved());
-
 // Get one resource, by the primary key value (id). The primary key for e.g. invoices is documentNo.
 var_dump(Invoice::find($client, 'GVFN22-12345'));
+
+// Save an order confirmation PDF file.
+$confirmationFile = fopen(__DIR__ . sprintf('/confirmation-%s.pdf', $order->no), 'w+');
+$order->confirmation($client, $confirmation);
 
 // Make an API request
 var_dump($client->get(Shipment::endpoint()));
@@ -53,5 +54,6 @@ When opening a pull request, please make sure that:
 
 ## ToDo's
 
-- [ ] Add a test for every resource.
 - [ ] Give every assertion in the tests a descriptive message.
+- [ ] Add a test for `NatecSdk\Client::getPdf()` and `NatecSdk\Resources\Order::confirmation()`
+- [ ] Add a test for every resource?

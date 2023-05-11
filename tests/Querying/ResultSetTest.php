@@ -20,35 +20,44 @@ class ResultSetTest extends HttpTestCase
 
         $guzzleHistory = [];
         $natecClient->setGuzzleClient($this->createGuzzleClient([
-            new Response(200, [], file_get_contents(__DIR__ . '/_data/invoices_page1.json')), // @phpstan-ignore-line
-            new Response(200, [], file_get_contents(__DIR__ . '/_data/invoices_page2.json')), // @phpstan-ignore-line
+            new Response(
+                200,
+                ['Content-Type' => 'application/json'],
+                file_get_contents(__DIR__ . '/_data/invoices_page1.json'), // @phpstan-ignore-line
+            ),
+            new Response(
+                200,
+                ['Content-Type' => 'application/json'],
+                file_get_contents(__DIR__ . '/_data/invoices_page2.json'), // @phpstan-ignore-line
+            ),
         ], $guzzleHistory));
 
         $invoicesPage1 = require __DIR__ . '/_data/invoices_page1.php';
         $invoicesPage2 = require __DIR__ . '/_data/invoices_page2.php';
         $invoicesAll = array_merge($invoicesPage1, $invoicesPage2);
 
-        $invoicesIterator = new ResultSet(Invoice::class, $natecClient, ['postingFrom' => '2022-07-10'], 1, 5);
-
-        $this->assertEquals($invoicesPage1, $invoicesIterator->allRetrieved());
+        $invoicesResultSet = new ResultSet(Invoice::class, $natecClient, ['postingFrom' => '2022-07-10'], 1, 5);
 
         $currentKey = 0;
-        foreach ($invoicesIterator as $invoice) {
-            $this->assertSame($currentKey, $invoicesIterator->key());
-            $this->assertEquals($invoicesAll[$currentKey], $invoice);
+        while ($invoicesResultSet->valid()) {
+            $this->assertSame($currentKey, $invoicesResultSet->key());
+            $this->assertEquals($invoicesAll[$currentKey], $invoicesResultSet->current(), 'Invoice ' . $currentKey);
+
+            $invoicesResultSet->next();
             $currentKey++;
         }
 
-        $this->assertEquals($invoicesAll, $invoicesIterator->allRetrieved());
-
         $this->assertEquals(2, count($guzzleHistory));
+
         $this->assertEquals(
             new Uri('https://php-sdk.natec.com/api/v1/invoices?postingFrom=2022-07-10&page=1&size=5'),
             $guzzleHistory[0]['request']->getUri(),
+            'Request page 1',
         );
         $this->assertEquals(
             new Uri('https://php-sdk.natec.com/api/v1/invoices?postingFrom=2022-07-10&page=2&size=5'),
             $guzzleHistory[1]['request']->getUri(),
+            'Request page 2',
         );
     }
 }

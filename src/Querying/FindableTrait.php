@@ -3,9 +3,8 @@
 namespace NatecSdk\Querying;
 
 use NatecSdk\Client;
-use PHPUnit\Framework\Attributes\CodeCoverageIgnore;
 
-trait Findable
+trait FindableTrait
 {
     /**
      * @throws \NatecSdk\Exceptions\NatecSdkException
@@ -23,6 +22,5 @@ trait Findable
         return static::create($data);
     }
 
-    #[CodeCoverageIgnore]
     abstract public static function endpoint(): string;
 }

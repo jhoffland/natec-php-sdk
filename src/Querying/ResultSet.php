@@ -4,10 +4,10 @@ namespace NatecSdk\Querying;
 
 use Iterator;
 use NatecSdk\Client;
-use NatecSdk\Resources\Resource;
+use NatecSdk\Resources\AbstractResource;
 
 /**
- * @template T of Resource
+ * @template T of \NatecSdk\Resources\AbstractResource
  *
  * @implements \Iterator<integer, T>
  */
@@ -18,23 +18,24 @@ class ResultSet implements Iterator
 
     private int $currentKey = 0;
 
+    private int $currentPage;
     private int $lastPage;
 
     /**
-     * @param class-string<T> $resourceName
+     * @param class-string<T> $resourceClassName
      * @param array<string, string> $queryParams
-     * @param positive-int $currentPage
+     * @param positive-int $startPage
      * @param positive-int $pageSize
      * @throws \NatecSdk\Exceptions\NatecSdkException
      */
     public function __construct(
-        private readonly string $resourceName,
+        private readonly string $resourceClassName,
         private readonly Client $client,
         private readonly array $queryParams,
-        private int $currentPage,
+        private readonly int $startPage,
         private readonly int $pageSize,
     ) {
-        $this->get($this->currentPage);
+        $this->get($this->startPage);
     }
 
     /**
@@ -43,7 +44,7 @@ class ResultSet implements Iterator
     private function get(int $page): void
     {
         /** @var string $endpoint */
-        $endpoint = $this->resourceName::endpoint();
+        $endpoint = $this->resourceClassName::endpoint();
 
         /** @var array{
          *     data: array<array<string, mixed>>,
@@ -59,7 +60,7 @@ class ResultSet implements Iterator
         ]));
 
         foreach ($result['data'] as $dataPerResource) {
-            $this->retrievedResources[] = $this->resourceName::create($dataPerResource);
+            $this->retrievedResources[] = $this->resourceClassName::create($dataPerResource);
         }
 
         $this->currentPage = $result['current_page'];
@@ -67,17 +68,9 @@ class ResultSet implements Iterator
     }
 
     /**
-     * @return array<T>
-     */
-    public function allRetrieved(): array
-    {
-        return $this->retrievedResources;
-    }
-
-    /**
      * @return T
      */
-    public function current(): Resource
+    public function current(): AbstractResource
     {
         return $this->retrievedResources[$this->currentKey];
     }
@@ -87,6 +80,8 @@ class ResultSet implements Iterator
      */
     public function next(): void
     {
+        unset($this->retrievedResources[$this->currentKey]);
+
         $this->currentKey++;
 
         if (!$this->valid() && $this->currentPage < $this->lastPage) {
@@ -104,8 +99,13 @@ class ResultSet implements Iterator
         return isset($this->retrievedResources[$this->currentKey]);
     }
 
+    /**
+     * @throws \NatecSdk\Exceptions\NatecSdkException
+     */
     public function rewind(): void
     {
         $this->currentKey = 0;
+        $this->retrievedResources = [];
+        $this->get($this->startPage);
     }
 }

@@ -3,9 +3,8 @@
 namespace NatecSdk\Querying;
 
 use NatecSdk\Client;
-use PHPUnit\Framework\Attributes\CodeCoverageIgnore;
 
-trait Queryable
+trait QueryableTrait
 {
     /**
      * @param array<string, string> $query
@@ -23,6 +22,5 @@ trait Queryable
         return new ResultSet(static::class, $client, $query, $startPage, $pageSize);
     }
 
-    #[CodeCoverageIgnore]
     abstract public static function endpoint(): string;
 }

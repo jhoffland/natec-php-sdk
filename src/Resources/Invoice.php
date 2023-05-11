@@ -3,14 +3,13 @@
 namespace NatecSdk\Resources;
 
 use DateTimeImmutable;
-use NatecSdk\Querying\Findable;
-use NatecSdk\Querying\Queryable;
+use NatecSdk\Querying\FindableTrait;
+use NatecSdk\Querying\QueryableTrait;
 use NatecSdk\Resources\Types\InvoiceType;
-use PHPUnit\Framework\Attributes\CodeCoverageIgnore;
 
-class Invoice extends Resource
+class Invoice extends AbstractResource
 {
-    use Queryable, Findable;
+    use QueryableTrait, FindableTrait;
 
     final public function __construct(
         public readonly string $documentNo,
@@ -26,7 +25,13 @@ class Invoice extends Resource
         return InvoiceType::fromInvoiceNo($this->documentNo);
     }
 
-    #[CodeCoverageIgnore]
+    public function orderNo(): ?string
+    {
+        $matchCount = preg_match('/^Order (?P<orderNo>VON[1-9][0-9]-[0-9]{1,})$/', $this->description, $matches);
+
+        return $matchCount === 1 ? $matches['orderNo'] : null;
+    }
+
     public static function endpoint(): string
     {
         return '/invoices';

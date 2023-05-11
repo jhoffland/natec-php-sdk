@@ -13,13 +13,13 @@ parameters:
             tooWideThrowType: true
     ignoreErrors:
         -
-            message: '#Call to an undefined static method T of NatecSdk\\Resources\\Resource::endpoint\(\)#'
+            message: '#Call to an undefined static method T of NatecSdk\\Resources\\AbstractResource::endpoint\(\)#'
             path: src/Querying/ResultSet.php
             count: 1
             reportUnmatched: true
         -
             message: '#Unsafe usage of new static\(\)#'
-            path: src/Resources/Resource.php
+            path: src/Resources/AbstractResource.php
             count: 1
             reportUnmatched: true
         -

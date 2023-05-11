@@ -12,7 +12,7 @@ use Psr\Http\Message\RequestInterface;
 abstract class HttpTestCase extends TestCase
 {
     /**
-     * @param array<mixed> $mockQueue
+     * @param array<(\Psr\Http\Message\ResponseInterface|\Throwable)> $mockQueue
      * @param array<empty> $guzzleHistory
      */
     protected function createGuzzleClient(array $mockQueue, array &$guzzleHistory): GuzzleClient

@@ -15,22 +15,4 @@ class TestHelpers
             new DateTimeZone('Europe/Amsterdam'),
         );
     }
-
-    /**
-     * @param array<mixed> $input
-     * @return array<mixed>
-     */
-    public static function shuffleArray(array $input): array
-    {
-        $shuffled = [];
-
-        $keys = array_keys($input);
-        shuffle($keys);
-
-        foreach ($keys as $key) {
-            $shuffled[$key] = $input[$key];
-        }
-
-        return $shuffled;
-    }
 }

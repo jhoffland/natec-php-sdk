@@ -2,19 +2,19 @@
 
 namespace NatecSdk\Resources;
 
-class FlashData extends Resource
+class FlashData extends AbstractResource
 {
     final public function __construct(
         public readonly string $itemNo,
         public readonly string $documentNo,
-        public readonly string $serialNo,
-        public readonly string $containerNr,
-        public readonly string $palletNo,
-        public readonly string $iscA,
-        public readonly string $vocV,
-        public readonly string $impA,
-        public readonly string $vmpV,
-        public readonly string $pmaxW,
+        public readonly ?string $serialNo,
+        public readonly ?string $containerNr,
+        public readonly ?string $palletNo,
+        public readonly ?float $iscA,
+        public readonly ?float $vocV,
+        public readonly ?float $impA,
+        public readonly ?float $vmpV,
+        public readonly ?float $pmaxW,
     ) {
     }
 }

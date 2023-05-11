@@ -4,8 +4,8 @@
     * Recognizing the placeholder "No {key}" is error prone (for example: <em>No Otype</em>).
     * Recognizing the unavailability of a value from the value 0 is error prone (an example is the field `wattpiek` of products).
 - [ ] Returning numbers as a number. Examples of fields where this is not the case:
-    * `grossPrice`, `netPrice` en `discount` voor product prices.
-    * `iscA`, `vocV`, `impA`, `vmpV` en `pmaxW` voor flash data. 
+  - [x] `grossPrice`, `netPrice` en `discount` voor product prices.
+  - [x] `iscA`, `vocV`, `impA`, `vmpV` en `pmaxW` voor flash data.
 - [ ] On successfully placing an order, returning the order number or the sufficient order. In case the sufficient order is return, it would be convenient that the response body matches the response body of `GET /orders`. 
 - [ ] If available, the `updatedAt` field of assortment updates also containg the time.
 

@@ -9,6 +9,7 @@ use GuzzleHttp\Psr7\Message;
 use GuzzleHttp\Psr7\Request;
 use NatecSdk\Exceptions\NatecApiException;
 use NatecSdk\Exceptions\NatecSdkException;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;
 
@@ -35,8 +36,29 @@ class Client
     {
         try {
             $request = $this->createRequest(self::GET_METHOD, $endpoint, null, $queryParams, $headers);
-            $response = $this->client()->send($request);
+            $response = $this->send($request);
             return $this->parseResponse($response);
+        } catch (Throwable $exception) {
+            $this->parseException($exception);
+        }
+    }
+
+    /**
+     * @param string $endpoint
+     * @param \Psr\Http\Message\StreamInterface|resource|string $sink
+     * @param array<string, string|array<string>> $headers
+     * @return void
+     * @throws \NatecSdk\Exceptions\NatecSdkException
+     */
+    public function getPdf(string $endpoint, $sink, array $headers = []): void
+    {
+        try {
+            $request = $this->createRequest(
+                method: self::GET_METHOD,
+                endpoint: $endpoint,
+                headers: array_merge($headers, ['Accept' => 'application/pdf']),
+            );
+            $this->send($request, ['sink' => $sink]);
         } catch (Throwable $exception) {
             $this->parseException($exception);
         }
@@ -52,7 +74,7 @@ class Client
     {
         try {
             $request = $this->createRequest(self::POST_METHOD, $endpoint, $body, [], $headers);
-            $response = $this->client()->send($request);
+            $response = $this->send($request);
             return $this->parseResponse($response);
         } catch (Throwable $exception) {
             $this->parseException($exception);
@@ -102,14 +124,24 @@ class Client
     private function client(): GuzzleClientInterface
     {
         if (!isset($this->client)) {
-            $this->client = new GuzzleClient([ // @codeCoverageIgnore
-                'http_errors' => true,
-                'cookies'     => false,
-                'timeout'     => 5,
-            ]);
+            $this->client = new GuzzleClient(['timeout' => 30]);
         }
 
         return $this->client;
+    }
+
+    /**
+     * @param \Psr\Http\Message\RequestInterface $request
+     * @param array<mixed> $options
+     * @return \Psr\Http\Message\ResponseInterface
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    private function send(RequestInterface $request, array $options = []): ResponseInterface
+    {
+        return $this->client()->send($request, array_merge([
+            'http_errors' => true,
+            'cookies'     => false,
+        ], $options));
     }
 
     /**
@@ -125,10 +157,10 @@ class Client
         array $queryParams = [],
         array $headers = [],
     ): Request {
-        $headers = array_merge($headers, [
+        $headers = array_merge([
             'Accept'        => 'application/json',
             'Authorization' => 'Bearer ' . $this->apiToken,
-        ]);
+        ], $headers);
 
         $preparedBody = null;
         if (!is_null($body)) {

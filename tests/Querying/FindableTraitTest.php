@@ -10,7 +10,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 
 #[UsesClass(Invoice::class)]
 #[UsesClass(Client::class)]
-class FindableTest extends HttpTestCase
+class FindableTraitTest extends HttpTestCase
 {
     public function test() : void
     {

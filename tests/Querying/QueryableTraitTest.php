@@ -12,7 +12,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 #[UsesClass(Client::class)]
 #[UsesClass(Invoice::class)]
 #[UsesClass(ResultSet::class)]
-class QueryableTest extends HttpTestCase
+class QueryableTraitTest extends HttpTestCase
 {
     public function test(): void
     {

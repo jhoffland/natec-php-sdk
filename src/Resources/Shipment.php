@@ -4,13 +4,12 @@ namespace NatecSdk\Resources;
 
 use DateTimeImmutable;
 use NatecSdk\Client;
-use NatecSdk\Querying\Findable;
-use NatecSdk\Querying\Queryable;
-use PHPUnit\Framework\Attributes\CodeCoverageIgnore;
+use NatecSdk\Querying\FindableTrait;
+use NatecSdk\Querying\QueryableTrait;
 
-class Shipment extends Resource
+class Shipment extends AbstractResource
 {
-    use Queryable, Findable;
+    use QueryableTrait, FindableTrait;
 
     /**
      * @param array<\NatecSdk\Resources\ShipmentLine> $lines
@@ -28,7 +27,7 @@ class Shipment extends Resource
         public readonly string $shipToName,
         public readonly string $shipToAddress,
         public readonly string $shipToCity,
-        public readonly string $shipToCountry,
+        public readonly ?string $shipToCountry,
         public readonly string $shipToPostCode,
         public readonly string $shipToContact,
         public readonly DateTimeImmutable $shipmentDate,
@@ -44,6 +43,10 @@ class Shipment extends Resource
         $lines = $data['lines'];
 
         foreach ($lines as $line) {
+            if (!isset($line['no'])) {
+                continue;
+            }
+
             $propertyValues['lines'][] = ShipmentLine::create($line);
         }
 
@@ -54,26 +57,21 @@ class Shipment extends Resource
 
     /**
      * @param array<string, string> $query
-     * @return array<\NatecSdk\Resources\FlashData>
+     * @return iterable<\NatecSdk\Resources\FlashData>
      * @throws \NatecSdk\Exceptions\NatecSdkException
      */
-    public function flashData(Client $client, array $query = []): array
+    public function flashData(Client $client, array $query = []): iterable
     {
         $endpoint = sprintf('%s/%s/flashdata', self::endpoint(), $this->no);
 
         /** @var array<array<string, mixed>> $data */
         $data = $client->get($endpoint, $query);
 
-        $flashData = [];
-
         foreach ($data as $dataPerResource) {
-            $flashData[] = FlashData::create($dataPerResource);
+            yield FlashData::create($dataPerResource);
         }
-
-        return $flashData;
     }
 
-    #[CodeCoverageIgnore]
     public static function endpoint(): string
     {
         return '/shipments';
